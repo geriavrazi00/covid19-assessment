@@ -1,5 +1,6 @@
 package com.assessment.covid19.controllers;
 
+import com.assessment.covid19.models.CountryCases;
 import com.assessment.covid19.services.CovidDataService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +21,8 @@ public class CovidDataController {
     private CovidDataService dataService;
 
     @GetMapping
-    public List<String> get(@RequestParam Optional<String[]> countries, @RequestParam Optional<String[]> continents) {
+    public List<CountryCases> get(@RequestParam Optional<String[]> countries, @RequestParam Optional<String[]> continents) {
         log.info("CovidDataController: Retrieving data");
-        this.dataService.calculate(countries, continents);
-        return null;
+        return this.dataService.calculate(countries, continents);
     }
 }

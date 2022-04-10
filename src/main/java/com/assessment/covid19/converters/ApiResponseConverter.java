@@ -28,7 +28,7 @@ public class ApiResponseConverter {
         Map<String, List<CountryCases>> continentCasesTemp = new HashMap<>();
 
         JsonFactory f = new MappingJsonFactory();
-        try (JsonParser jp = f.createParser(apiResponse)) {
+        try (JsonParser jp = f.createParser(new File(apiResponse))) {
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 log.error("Error in convertJsonToCountryCases(): The JSON format is wrongly formatted.");
                 return Pair.of(countryCasesTemp, continentCasesTemp);

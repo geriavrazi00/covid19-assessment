@@ -40,5 +40,4 @@ public class CountryCases {
 
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date updated;
-    private List<CountryDivision> divisions;
 }

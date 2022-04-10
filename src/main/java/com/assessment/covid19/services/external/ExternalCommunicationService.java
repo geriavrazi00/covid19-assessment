@@ -45,9 +45,9 @@ public class ExternalCommunicationService {
     private void loadCases() throws IOException {
         log.info("ExternalServiceCommunication: Started loading the cases");
 
-        RestTemplate restTemplate = new RestTemplate();
-        String result = restTemplate.getForObject(this.apiBase + "/cases", String.class);
-        Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertedResponse = apiResponseConverter.convertJsonToCountryCases(result);
+//        RestTemplate restTemplate = new RestTemplate();
+//        String result = restTemplate.getForObject(this.apiBase + "/cases", String.class);
+        Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertedResponse = apiResponseConverter.convertJsonToCountryCases("C:\\Users\\geria\\IdeaProjects\\covid19-assesment\\src\\main\\resources\\static\\cases");
 
         countryCasesMap = convertedResponse.getLeft();
         continentCasesMap = convertedResponse.getRight();
