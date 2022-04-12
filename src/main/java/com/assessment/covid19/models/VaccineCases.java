@@ -9,10 +9,15 @@ import java.util.Date;
 
 @Data
 @Builder
-public class CountryCases {
-    private Long confirmed;
-    private Long recovered;
-    private Long deaths;
+public class VaccineCases {
+    private Long administered;
+
+    @JsonAlias("people_vaccinated")
+    private Long peopleVaccinated;
+
+    @JsonAlias("people_partially_vaccinated")
+    private Long peoplePartiallyVaccinated;
+
     private String country;
     private Long population;
 

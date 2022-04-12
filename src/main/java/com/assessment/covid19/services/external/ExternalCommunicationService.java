@@ -41,13 +41,11 @@ public class ExternalCommunicationService {
         log.info("ExternalServiceCommunication: Finished loading data from the external source");
     }
 
-    // "C:\\Users\\geria\\IdeaProjects\\covid19-assesment\\src\\main\\resources\\static\\cases"
     private void loadCases() throws IOException {
         log.info("ExternalServiceCommunication: Started loading the cases");
 
-//        RestTemplate restTemplate = new RestTemplate();
-//        String result = restTemplate.getForObject(this.apiBase + "/cases", String.class);
-        Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertedResponse = apiResponseConverter.convertJsonToCountryCases("C:\\Users\\geria\\IdeaProjects\\covid19-assesment\\src\\main\\resources\\static\\cases");
+        String result = this.sendRequest("/cases");
+        Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertedResponse = apiResponseConverter.convertJsonToCountryCases(result);
 
         countryCasesMap = convertedResponse.getLeft();
         continentCasesMap = convertedResponse.getRight();
@@ -57,6 +55,19 @@ public class ExternalCommunicationService {
 
     private void loadVaccinations() {
         log.info("ExternalServiceCommunication: Started loading the vaccinations");
+
+        String result = this.sendRequest("/cases");
+
         log.info("ExternalServiceCommunication: Finished loading the vaccinations");
+    }
+
+    private String sendRequest(String url) {
+//        RestTemplate restTemplate = new RestTemplate();
+//        return restTemplate.getForObject(this.apiBase + url, String.class);
+        if (url.equals("/cases")) {
+            return "C:\\Users\\geria\\IdeaProjects\\covid19-assesment\\src\\main\\resources\\static\\cases";
+        } else {
+            return "";
+        }
     }
 }

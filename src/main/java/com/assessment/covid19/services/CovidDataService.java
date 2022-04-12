@@ -17,12 +17,14 @@ public class CovidDataService {
     private CovidDataRepository dataRepository;
 
     public List<CountryCases> calculate(Optional<String[]> countries, Optional<String[]> continents) {
-        List<CountryCases> countryCases = new ArrayList<>();
+        List<CountryCases> countryCases;
 
         if (continents.isPresent()) {
-
+            countryCases = this.dataRepository.filterDataByContinents(continents.get());
+        } else if (countries.isPresent()) {
+            countryCases = this.dataRepository.filterDataByCountries(countries.get());
         } else {
-            countryCases = this.dataRepository.filterDataByCountries(countries);
+            countryCases = this.dataRepository.getAll();
         }
 
         return countryCases;

@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Component
 public class CovidDataRepository {
@@ -16,19 +15,33 @@ public class CovidDataRepository {
     @Autowired
     private ExternalCommunicationService communicationService;
 
-    public List<CountryCases> filterDataByCountries(Optional<String[]> countries) {
+    public List<CountryCases> getAll() {
+        return new ArrayList<>(communicationService.getCountryCasesMap().values());
+    }
+
+    public List<CountryCases> filterDataByCountries(String[] countries) {
         List<CountryCases> countryCases = new ArrayList<>();
 
-        if (countries.isPresent()) {
-            for (String country: countries.get()) {
-                String formattedCountryName = Utils.formatName(country);
+        for (String country: countries) {
+            String formattedCountryName = Utils.formatName(country);
 
-                if (communicationService.getCountryCasesMap().containsKey(formattedCountryName)) {
-                    countryCases.add(communicationService.getCountryCasesMap().get(formattedCountryName));
-                }
+            if (communicationService.getCountryCasesMap().containsKey(formattedCountryName)) {
+                countryCases.add(communicationService.getCountryCasesMap().get(formattedCountryName));
             }
-        } else {
-            countryCases = new ArrayList<>(communicationService.getCountryCasesMap().values());
+        }
+
+        return countryCases;
+    }
+
+    public List<CountryCases> filterDataByContinents(String[] continents) {
+        List<CountryCases> countryCases = new ArrayList<>();
+
+        for (String continent: continents) {
+            String formattedContinentName = Utils.formatName(continent);
+
+            if (communicationService.getContinentCasesMap().containsKey(formattedContinentName)) {
+                countryCases.addAll(communicationService.getContinentCasesMap().get(formattedContinentName));
+            }
         }
 
         return countryCases;
