@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class CovidDataRepository {
+public class CovidCasesRepository {
 
     @Autowired
     private ExternalCommunicationService communicationService;
@@ -34,35 +34,7 @@ public class CovidDataRepository {
         return countryCases;
     }
 
-    public List<CountryVaccines> filterVaccinesByCountries(String[] countries) {
-        List<CountryVaccines> countryVaccines = new ArrayList<>();
-
-        for (String country: countries) {
-            String formattedCountryName = Utils.formatName(country);
-
-            if (communicationService.getCountryCasesMap().containsKey(formattedCountryName)) {
-                countryVaccines.add(communicationService.getCountryVaccinesMap().get(formattedCountryName));
-            }
-        }
-
-        return countryVaccines;
-    }
-
     public List<CountryCases> filterCasesByContinents(String[] continents) {
-        List<CountryCases> countryCases = new ArrayList<>();
-
-        for (String continent: continents) {
-            String formattedContinentName = Utils.formatName(continent);
-
-            if (communicationService.getContinentCasesMap().containsKey(formattedContinentName)) {
-                countryCases.addAll(communicationService.getContinentCasesMap().get(formattedContinentName));
-            }
-        }
-
-        return countryCases;
-    }
-
-    public List<CountryVaccines> filterVaccinesByContinents(String[] continents) {
         List<CountryCases> countryCases = new ArrayList<>();
 
         for (String continent: continents) {

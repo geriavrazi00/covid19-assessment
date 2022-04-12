@@ -1,6 +1,7 @@
 package com.assessment.covid19.converters;
 
 import com.assessment.covid19.models.CountryCases;
+import com.assessment.covid19.models.CountryVaccines;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
@@ -23,14 +24,45 @@ public class ApiResponseConverter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertJsonToCountryCases(String apiResponse) throws IOException {
-        Map<String, CountryCases> countryCasesTemp = new HashMap<>();
-        Map<String, List<CountryCases>> continentCasesTemp = new HashMap<>();
+    // TODO - see again the class to write it better
+    public Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertForCountryCases(String apiResponse) throws IOException {
+        return (Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>>)(Object) convertJson(apiResponse, CountryCases.class.getName(), new HashMap<>(), new HashMap<>());
+    }
 
+    public Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>> convertForCountryVaccines(String apiResponse) throws IOException {
+        return (Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>>)(Object) convertJson(apiResponse, CountryVaccines.class.getName(), new HashMap<>(), new HashMap<>());
+    }
+
+    private void convertForCountryCases(JsonParser jp, String countryName, Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) throws IOException {
+        CountryCases countryCases = objectMapper.readValue(jp.readValueAsTree().toString(), CountryCases.class);
+        if (countryCases.getCountry() == null) countryCases.setCountry(countryName);
+        countryCasesTemp.put(countryName, countryCases);
+
+        if (!continentCasesTemp.containsKey(countryCases.getContinent())) {
+            continentCasesTemp.put(countryCases.getContinent(), new ArrayList<>());
+        }
+        continentCasesTemp.get(countryCases.getContinent()).add(countryCases);
+    }
+
+    private void convertForCountryVaccines(JsonParser jp, String countryName, Map<String, Object> countryVaccinesTemp, Map<String, List<Object>> continentVaccinesTemp) throws IOException {
+        CountryVaccines countryVaccines = objectMapper.readValue(jp.readValueAsTree().toString(), CountryVaccines.class);
+        if (countryVaccines.getCountry() == null) countryVaccines.setCountry(countryName);
+
+        countryVaccinesTemp.put(countryName, countryVaccines);
+
+        if (!continentVaccinesTemp.containsKey(countryVaccines.getContinent())) {
+            continentVaccinesTemp.put(countryVaccines.getContinent(), new ArrayList<>());
+        }
+        continentVaccinesTemp.get(countryVaccines.getContinent()).add(countryVaccines);
+    }
+
+    private Pair<Map<String, Object>, Map<String, List<Object>>> convertJson(String apiResponse, String classType,
+            Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) throws IOException {
         JsonFactory f = new MappingJsonFactory();
+
         try (JsonParser jp = f.createParser(new File(apiResponse))) {
             if (jp.nextToken() != JsonToken.START_OBJECT) {
-                log.error("Error in convertJsonToCountryCases(): The JSON format is wrongly formatted.");
+                log.error("Error in convertJson(): The JSON format is wrongly formatted.");
                 return Pair.of(countryCasesTemp, continentCasesTemp);
             }
 
@@ -44,14 +76,11 @@ public class ApiResponseConverter {
 
                     if (jp.getCurrentName().equals("All")) {
                         jp.nextToken();
-                        CountryCases countryCases = objectMapper.readValue(jp.readValueAsTree().toString(), CountryCases.class);
-                        if (countryCases.getCountry() == null) countryCases.setCountry(countryName);
-                        countryCasesTemp.put(countryName, countryCases);
-
-                        if (!continentCasesTemp.containsKey(countryCases.getContinent())) {
-                            continentCasesTemp.put(countryCases.getContinent(), new ArrayList<>());
+                        if (classType.equals(CountryCases.class.getName())) {
+                            this.convertForCountryCases(jp, countryName, countryCasesTemp, continentCasesTemp);
+                        } else if (classType.equals(CountryVaccines.class.getName())) {
+                            this.convertForCountryVaccines(jp, countryName, countryCasesTemp, continentCasesTemp);
                         }
-                        continentCasesTemp.get(countryCases.getContinent()).add(countryCases);
                     } else {
                         jp.nextToken();
                         jp.readValueAsTree();

@@ -2,13 +2,11 @@ package com.assessment.covid19.models;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-@Builder
 public class CountryCases {
     private Long confirmed;
     private Long recovered;

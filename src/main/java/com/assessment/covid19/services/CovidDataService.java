@@ -1,12 +1,12 @@
 package com.assessment.covid19.services;
 
 import com.assessment.covid19.models.CountryCases;
-import com.assessment.covid19.repositories.CovidDataRepository;
-import com.assessment.covid19.services.external.ExternalCommunicationService;
+import com.assessment.covid19.models.CountryVaccines;
+import com.assessment.covid19.repositories.CovidCasesRepository;
+import com.assessment.covid19.repositories.CovidVaccinesRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,17 +14,22 @@ import java.util.Optional;
 public class CovidDataService {
 
     @Autowired
-    private CovidDataRepository dataRepository;
+    private CovidCasesRepository covidCasesRepository;
+
+    @Autowired
+    private CovidVaccinesRepository covidVaccinesRepository;
 
     public List<CountryCases> calculate(Optional<String[]> countries, Optional<String[]> continents) {
         List<CountryCases> countryCases;
+        List<CountryVaccines> countryVaccines;
 
         if (continents.isPresent()) {
-            countryCases = this.dataRepository.filterDataByContinents(continents.get());
+            countryCases = this.covidCasesRepository.filterCasesByContinents(continents.get());
+            countryVaccines = this.covidVaccinesRepository.filterVaccinesByContinents(continents.get());
         } else if (countries.isPresent()) {
-            countryCases = this.dataRepository.filterDataByCountries(countries.get());
+            countryCases = this.covidCasesRepository.filterCasesByCountries(countries.get());
         } else {
-            countryCases = this.dataRepository.getAll();
+            countryCases = this.covidCasesRepository.getAllCases();
         }
 
         return countryCases;

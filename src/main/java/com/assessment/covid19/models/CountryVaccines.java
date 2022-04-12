@@ -2,14 +2,12 @@ package com.assessment.covid19.models;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-@Builder
-public class VaccineCases {
+public class CountryVaccines {
     private Long administered;
 
     @JsonAlias("people_vaccinated")
@@ -44,6 +42,6 @@ public class VaccineCases {
     @JsonAlias("long")
     private String longitude;
 
-    @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
+    @JsonFormat(pattern = "yyyy/MM/dd hh:mm:ss")
     private Date updated;
 }
