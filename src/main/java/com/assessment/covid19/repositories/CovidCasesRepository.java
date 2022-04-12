@@ -1,6 +1,7 @@
 package com.assessment.covid19.repositories;
 
 import com.assessment.covid19.models.CountryCases;
+import com.assessment.covid19.models.CountryVaccines;
 import com.assessment.covid19.services.external.ExternalCommunicationService;
 import com.assessment.covid19.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +16,11 @@ public class CovidDataRepository {
     @Autowired
     private ExternalCommunicationService communicationService;
 
-    public List<CountryCases> getAll() {
+    public List<CountryCases> getAllCases() {
         return new ArrayList<>(communicationService.getCountryCasesMap().values());
     }
 
-    public List<CountryCases> filterDataByCountries(String[] countries) {
+    public List<CountryCases> filterCasesByCountries(String[] countries) {
         List<CountryCases> countryCases = new ArrayList<>();
 
         for (String country: countries) {
@@ -33,7 +34,35 @@ public class CovidDataRepository {
         return countryCases;
     }
 
-    public List<CountryCases> filterDataByContinents(String[] continents) {
+    public List<CountryVaccines> filterVaccinesByCountries(String[] countries) {
+        List<CountryVaccines> countryVaccines = new ArrayList<>();
+
+        for (String country: countries) {
+            String formattedCountryName = Utils.formatName(country);
+
+            if (communicationService.getCountryCasesMap().containsKey(formattedCountryName)) {
+                countryVaccines.add(communicationService.getCountryVaccinesMap().get(formattedCountryName));
+            }
+        }
+
+        return countryVaccines;
+    }
+
+    public List<CountryCases> filterCasesByContinents(String[] continents) {
+        List<CountryCases> countryCases = new ArrayList<>();
+
+        for (String continent: continents) {
+            String formattedContinentName = Utils.formatName(continent);
+
+            if (communicationService.getContinentCasesMap().containsKey(formattedContinentName)) {
+                countryCases.addAll(communicationService.getContinentCasesMap().get(formattedContinentName));
+            }
+        }
+
+        return countryCases;
+    }
+
+    public List<CountryVaccines> filterVaccinesByContinents(String[] continents) {
         List<CountryCases> countryCases = new ArrayList<>();
 
         for (String continent: continents) {
