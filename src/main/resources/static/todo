@@ -1,0 +1,7 @@
+1. adding swagger
+2. deploying in heroku
+3. see if I can rewrite the ApiResponseConverter class
+4. adding comments
+5. adding some more logs
+6. properly testing, especially the threads when we are reading data and the maps are being updated
+7. adding unit tests
