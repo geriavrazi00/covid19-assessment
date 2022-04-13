@@ -9,3 +9,4 @@
 2. deploying in heroku
 8. properly clean the project. delete the static folder in the resources folder
 9. check all classes with sonar again to see if its all ok
+12. Maybe remove some fields in the models, not all of them are necessary
