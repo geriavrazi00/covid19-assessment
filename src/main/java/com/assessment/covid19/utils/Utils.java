@@ -27,6 +27,7 @@ public class Utils {
     }
 
     public static Double decimalPointConverter(Double number, int decimalNumberQuantity) {
+        if (number == null) return null;
         DecimalFormat dfSharp = new DecimalFormat("#." + "#".repeat(Math.max(0, decimalNumberQuantity)));
         return Double.valueOf(dfSharp.format(number));
     }
