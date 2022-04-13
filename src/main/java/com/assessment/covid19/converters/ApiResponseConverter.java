@@ -23,6 +23,7 @@ import java.util.Map;
 public class ApiResponseConverter {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final String GLOBAL_COUNTRY_NAME = "Global";
 
     // TODO - see again the class to write it better
     public Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertForCountryCases(String apiResponse) throws IOException {
@@ -35,25 +36,27 @@ public class ApiResponseConverter {
 
     private void convertForCountryCases(JsonParser jp, String countryName, Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) throws IOException {
         CountryCases countryCases = objectMapper.readValue(jp.readValueAsTree().toString(), CountryCases.class);
-        if (countryCases.getCountry() == null) countryCases.setCountry(countryName);
-        countryCasesTemp.put(countryName, countryCases);
+        if (!countryName.equals(GLOBAL_COUNTRY_NAME)) {
+            if (countryCases.getCountry() == null) countryCases.setCountry(countryName);
+            countryCasesTemp.put(countryName.toLowerCase(), countryCases);
 
-        if (!continentCasesTemp.containsKey(countryCases.getContinent())) {
-            continentCasesTemp.put(countryCases.getContinent(), new ArrayList<>());
+            String continentName = countryCases.getContinent() != null ? countryCases.getContinent().toLowerCase() : null;
+            continentCasesTemp.putIfAbsent(continentName, new ArrayList<>());
+            continentCasesTemp.get(continentName).add(countryCases);
         }
-        continentCasesTemp.get(countryCases.getContinent()).add(countryCases);
     }
 
     private void convertForCountryVaccines(JsonParser jp, String countryName, Map<String, Object> countryVaccinesTemp, Map<String, List<Object>> continentVaccinesTemp) throws IOException {
         CountryVaccines countryVaccines = objectMapper.readValue(jp.readValueAsTree().toString(), CountryVaccines.class);
-        if (countryVaccines.getCountry() == null) countryVaccines.setCountry(countryName);
+        if (!countryName.equals(GLOBAL_COUNTRY_NAME)) {
+            if (countryVaccines.getCountry() == null) countryVaccines.setCountry(countryName);
 
-        countryVaccinesTemp.put(countryName, countryVaccines);
+            countryVaccinesTemp.put(countryName.toLowerCase(), countryVaccines);
 
-        if (!continentVaccinesTemp.containsKey(countryVaccines.getContinent())) {
-            continentVaccinesTemp.put(countryVaccines.getContinent(), new ArrayList<>());
+            String continentName = countryVaccines.getContinent() != null ? countryVaccines.getContinent().toLowerCase() : null;
+            continentVaccinesTemp.putIfAbsent(continentName, new ArrayList<>());
+            continentVaccinesTemp.get(continentName).add(countryVaccines);
         }
-        continentVaccinesTemp.get(countryVaccines.getContinent()).add(countryVaccines);
     }
 
     private Pair<Map<String, Object>, Map<String, List<Object>>> convertJson(String apiResponse, String classType,
@@ -69,7 +72,7 @@ public class ApiResponseConverter {
             JsonToken current = jp.nextToken();
 
             while (current != JsonToken.END_OBJECT) {
-                String countryName = jp.getCurrentName();
+                String countryName = jp.getCurrentName().toLowerCase();
 
                 if (jp.nextToken() != JsonToken.END_OBJECT) {
                     jp.nextToken();

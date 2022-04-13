@@ -44,4 +44,8 @@ public class CountryVaccines {
 
     @JsonFormat(pattern = "yyyy/MM/dd hh:mm:ss")
     private Date updated;
+
+    public Double calculateVaxToPopPercentage() {
+        return (population != null && population != 0) ? peopleVaccinated/Double.valueOf(population) * 100 : 0.0;
+    }
 }

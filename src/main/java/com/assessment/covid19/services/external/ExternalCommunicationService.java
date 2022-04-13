@@ -71,9 +71,9 @@ public class ExternalCommunicationService {
 //        RestTemplate restTemplate = new RestTemplate();
 //        return restTemplate.getForObject(this.apiBase + url, String.class);
         if (url.equals("/cases")) {
-            return "C:\\Users\\geria\\IdeaProjects\\covid19-assesment\\src\\main\\resources\\static\\cases";
+            return "src\\main\\resources\\static\\cases";
         } else {
-            return "C:\\Users\\geria\\IdeaProjects\\covid19-assesment\\src\\main\\resources\\static\\vaccines";
+            return "src\\main\\resources\\static\\vaccines";
         }
     }
 }

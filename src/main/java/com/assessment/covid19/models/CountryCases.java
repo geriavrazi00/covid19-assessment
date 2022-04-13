@@ -39,4 +39,8 @@ public class CountryCases {
 
     @JsonFormat(pattern = "yyyy-MM-dd hh:mm:ss")
     private Date updated;
+
+    public Double calculateDeathsToPopPercentage() {
+        return (population != null && population != 0) ? deaths/Double.valueOf(population) * 100 : 0.0;
+    }
 }
