@@ -1,6 +1,9 @@
 package com.assessment.covid19.controllers;
 
+import com.assessment.covid19.models.DataResponse;
 import com.assessment.covid19.services.CovidDataService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +23,21 @@ public class CovidDataController {
     private CovidDataService dataService;
 
     @GetMapping
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Welcoming message", useReturnTypeSchema = true)
+    })
     public String welcome() {
         log.info("CovidDataController: Welcome!");
         return "Hi :)";
     }
 
     @GetMapping("/correlation")
-    public ResponseEntity<Object> calculateCorrelationCoefficient(@RequestParam Optional<String[]> countries, @RequestParam Optional<String[]> continents) {
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successful response with the selected countries and the correlation coefficient",
+            useReturnTypeSchema = true),
+            @ApiResponse(responseCode = "500", description = "Server error")
+    })
+    public DataResponse calculateCorrelationCoefficient(@RequestParam Optional<String[]> countries, @RequestParam Optional<String[]> continents) {
         log.info("CovidDataController: calculateCorrelationCoefficient()");
         return this.dataService.calculateCorrelationCoefficient(countries, continents);
     }

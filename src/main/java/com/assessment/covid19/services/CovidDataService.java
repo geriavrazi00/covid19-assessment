@@ -23,7 +23,7 @@ public class CovidDataService {
     @Autowired
     private CovidDataRepository covidCasesRepository;
 
-    public ResponseEntity<Object> calculateCorrelationCoefficient(Optional<String[]> countries, Optional<String[]> continents) {
+    public DataResponse calculateCorrelationCoefficient(Optional<String[]> countries, Optional<String[]> continents) {
         log.info("CovidDataService: calculateCorrelationCoefficient()");
 
         Triple<List<String>, List<CountryCases> , List<CountryVaccines>> countryData;
@@ -50,7 +50,7 @@ public class CovidDataService {
 
         log.info("CovidDataService: calculateCorrelationCoefficient() finished");
 
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return response;
     }
 
     private Double correlationCoefficient(List<Double> x, List<Double> y) {
