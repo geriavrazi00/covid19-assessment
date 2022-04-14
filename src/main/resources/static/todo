@@ -1,4 +1,4 @@
-1. adding swagger
+1. adding swagger - DONE, maybe recheck
 10. exception handling
 11. retry case of calling the api when the connection is down
 3. see if I can rewrite the ApiResponseConverter class
