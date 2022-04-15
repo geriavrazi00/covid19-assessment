@@ -63,7 +63,7 @@ public class ApiResponseConverter {
             Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) throws IOException {
         JsonFactory f = new MappingJsonFactory();
 
-        try (JsonParser jp = f.createParser(new File(apiResponse))) {
+        try (JsonParser jp = f.createParser(apiResponse)) {
             if (jp.nextToken() != JsonToken.START_OBJECT) {
                 log.error("Error in convertJson(): The JSON format is wrongly formatted.");
                 return Pair.of(countryCasesTemp, continentCasesTemp);
