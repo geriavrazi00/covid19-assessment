@@ -3,6 +3,7 @@ package com.assessment.covid19.services.external;
 import com.assessment.covid19.converters.ApiResponseConverter;
 import com.assessment.covid19.models.CountryCases;
 import com.assessment.covid19.models.CountryVaccines;
+import com.assessment.covid19.models.enums.ExternalUrlPathsEnum;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
@@ -26,6 +27,9 @@ public class ExternalCommunicationService {
     @Autowired
     private ApiResponseConverter apiResponseConverter;
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     private Map<String, CountryCases> countryCasesMap = new HashMap<>();
     private Map<String, List<CountryCases>> continentCasesMap = new HashMap<>();
     private Map<String, CountryVaccines> countryVaccinesMap = new HashMap<>();
@@ -47,7 +51,7 @@ public class ExternalCommunicationService {
     private void loadCases() throws IOException {
         log.info("ExternalServiceCommunication: Started loading the cases");
 
-        String result = this.sendRequest("/cases");
+        String result = this.sendRequest(ExternalUrlPathsEnum.CASES_URL.getPath());
         Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertedResponse = apiResponseConverter.convertForCountryCases(result);
 
         countryCasesMap = convertedResponse.getLeft();
@@ -59,7 +63,7 @@ public class ExternalCommunicationService {
     private void loadVaccinations() throws IOException {
         log.info("ExternalServiceCommunication: Started loading the vaccinations");
 
-        String result = this.sendRequest("/vaccines");
+        String result = this.sendRequest(ExternalUrlPathsEnum.VACCINES_URL.getPath());
         Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>> convertedResponse = apiResponseConverter.convertForCountryVaccines(result);
 
         countryVaccinesMap = convertedResponse.getLeft();
@@ -70,11 +74,11 @@ public class ExternalCommunicationService {
 
     private String sendRequest(String url) {
 //        RestTemplate restTemplate = new RestTemplate();
-//        return restTemplate.getForObject(this.apiBase + url, String.class);
-        if (url.equals("/cases")) {
-            return "src\\main\\resources\\static\\cases";
-        } else {
-            return "src\\main\\resources\\static\\vaccines";
-        }
+        return restTemplate.getForObject(this.apiBase + url, String.class);
+//        if (url.equals("/cases")) {
+//            return "src\\main\\resources\\static\\cases";
+//        } else {
+//            return "src\\main\\resources\\static\\vaccines";
+//        }
     }
 }

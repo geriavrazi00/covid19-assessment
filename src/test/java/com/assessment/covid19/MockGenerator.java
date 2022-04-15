@@ -2,6 +2,7 @@ package com.assessment.covid19;
 
 import com.assessment.covid19.models.CountryCases;
 import com.assessment.covid19.models.CountryVaccines;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
 
 import java.util.*;
@@ -91,6 +92,26 @@ public class MockGenerator {
 
         continents.put(CONTINENTS[0].toLowerCase(), countryCases);
         return continents;
+    }
+
+    public static Map<String, List<CountryVaccines>> buildMapOfContinentVaccines() {
+        Map<String, List<CountryVaccines>> continents = new HashMap<>();
+        List<CountryVaccines> countryVaccines = new ArrayList<>();
+
+        for (String country: EUROPEAN_COUNTRIES) {
+            countryVaccines.add(buildCountryVaccines(country, CONTINENTS[0], generatePopulationRandom()));
+        }
+
+        continents.put(CONTINENTS[0].toLowerCase(), countryVaccines);
+        return continents;
+    }
+
+    public static Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> buildPairOfCountryCases() {
+        return Pair.of(buildMapOfCountryCases(Optional.empty()), buildMapOfContinentCases());
+    }
+
+    public static Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>> buildPairOfCountryVaccines() {
+        return Pair.of(buildMapOfCountryVaccines(Optional.empty()), buildMapOfContinentVaccines());
     }
 
     private static Long generatePopulationRandom() {
