@@ -50,13 +50,51 @@ public class MockGenerator {
         List<CountryVaccines> countryVaccines = new ArrayList<>();
 
         for (String c : countries) {
-            LongStream populationStream = random.longs(1, 100000, 100000000);
-            Long population = populationStream.findFirst().getAsLong();
+            Long population = generatePopulationRandom();
 
             countryCases.add(buildCountryCase(c, selectedContinent, population));
             countryVaccines.add(buildCountryVaccines(c, selectedContinent, population));
         }
 
         return Triple.of(countries, countryCases, countryVaccines);
+    }
+
+    public static Map<String, CountryCases> buildMapOfCountryCases(Optional<String[]> countries) {
+        Map<String, CountryCases> casesMap = new HashMap<>();
+        String[] defaultCountries = countries.orElse(EUROPEAN_COUNTRIES);
+
+        for (String country: defaultCountries) {
+            casesMap.put(country.toLowerCase(), buildCountryCase(country, "test", generatePopulationRandom()));
+        }
+
+        return casesMap;
+    }
+
+    public static Map<String, CountryVaccines> buildMapOfCountryVaccines(Optional<String[]> countries) {
+        Map<String, CountryVaccines> vaccinesMap = new HashMap<>();
+        String[] defaultCountries = countries.orElse(EUROPEAN_COUNTRIES);
+
+        for (String country: defaultCountries) {
+            vaccinesMap.put(country.toLowerCase(), buildCountryVaccines(country, "test", generatePopulationRandom()));
+        }
+
+        return vaccinesMap;
+    }
+
+    public static Map<String, List<CountryCases>> buildMapOfContinentCases() {
+        Map<String, List<CountryCases>> continents = new HashMap<>();
+        List<CountryCases> countryCases = new ArrayList<>();
+
+        for (String country: EUROPEAN_COUNTRIES) {
+            countryCases.add(buildCountryCase(country, CONTINENTS[0], generatePopulationRandom()));
+        }
+
+        continents.put(CONTINENTS[0].toLowerCase(), countryCases);
+        return continents;
+    }
+
+    private static Long generatePopulationRandom() {
+        LongStream populationStream = random.longs(1, 100000, 100000000);
+        return populationStream.findFirst().getAsLong();
     }
 }
