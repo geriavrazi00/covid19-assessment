@@ -14,7 +14,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.IOException;
 import java.util.*;
 
 @Component
@@ -29,20 +28,33 @@ public class ExternalCommunicationService {
     @Autowired
     private RestTemplate restTemplate;
 
+    /**
+     * This group of variables is used to store the data retrieved from the API. There 2 sets of maps, the first two for
+     * the cases data and the second ones for the vaccination data.
+     */
     private Map<String, CountryCases> countryCasesMap = new HashMap<>();
     private Map<String, List<CountryCases>> continentCasesMap = new HashMap<>();
     private Map<String, CountryVaccines> countryVaccinesMap = new HashMap<>();
     private Map<String, List<CountryVaccines>> continentVaccinesMap = new HashMap<>();
 
+    /**
+     * This group of variables is used in the retry strategy of the api calling.
+     */
     private static final int MAX_RETRIES = 3;
     private int retryCounter = 0;
     private boolean communicationFailed = false;
 
-    // Call the method every 70 min since the api itself loads the data approximately every 60 min
+    /**
+     * The method that starts it all. It is executed asynchronously at a fixed schedule of 70 mins, so it reads the data
+     * from the external service every 70 mins. The interval amount was chosen since the documentation of the external
+     * API stated that the data there itself were updated approximately every hours. I added 10 mins to it to be almost
+     * certain that the next call will be getting new data.
+     *
+     */
     @Async
     @Scheduled(fixedRateString = "${schedule.interval.in.millis}")
 //    @Scheduled(fixedRate = 500)
-    public void loadData() throws IOException {
+    public void loadData() {
         log.info("ExternalServiceCommunication: Loading data from the external source");
 
         retryCounter = 0;
@@ -54,7 +66,7 @@ public class ExternalCommunicationService {
         log.info("ExternalServiceCommunication: Finished loading data from the external source");
     }
 
-    private void loadCases() throws IOException {
+    private void loadCases() {
         log.info("ExternalServiceCommunication: Started loading the cases");
 
         String result = this.sendRequest(ExternalUrlPathsEnum.CASES_URL.getPath());
@@ -66,7 +78,7 @@ public class ExternalCommunicationService {
         log.info("ExternalServiceCommunication: Finished loading the cases");
     }
 
-    private void loadVaccinations() throws IOException {
+    private void loadVaccinations() {
         log.info("ExternalServiceCommunication: Started loading the vaccinations");
 
         String result = this.sendRequest(ExternalUrlPathsEnum.VACCINES_URL.getPath());
@@ -78,6 +90,16 @@ public class ExternalCommunicationService {
         log.info("ExternalServiceCommunication: Finished loading the vaccinations");
     }
 
+    /**
+     * The method send the request to the API based on the url given as param. I have implemented a retry strategy,
+     * thus if a connection or read timeout happens, and we cannot access the external API, the method will try
+     * to make the call again as many times as the value of the MAX_RETRIES variable. If none of the calls go
+     * successfully, an exception is thrown to interrupt the continuation of the flow. When we are present in this case,
+     * the boolean communicationFailed will be set to true.
+     *
+     * @param url
+     * @return String
+     */
     private String sendRequest(String url) {
         do {
             try {
@@ -112,6 +134,13 @@ public class ExternalCommunicationService {
         return continentVaccinesMap;
     }
 
+    /**
+     * We check if the communicationFailed is true. If it is, it throws a ResourceAccessException. This method is called
+     * in all the getters above. When outer classes try to get the values of the maps holding the API data, this check
+     * will be performed first and the exception will be thrown if it is the case. It is implemented this way to make
+     * the outer classes understand that something went wrong when trying to access the data and not just return
+     * empty maps.
+     */
     private void checkCommunicationStatus() {
         if (communicationFailed) throw new ResourceAccessException("Communication with the external service failed!");
     }

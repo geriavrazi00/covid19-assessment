@@ -56,6 +56,15 @@ public class ApiResponseConverter {
         }
     }
 
+    /**
+     * Converting the API result to a proper Pair of maps of data.
+     *
+     * @param apiResponse
+     * @param classType
+     * @param countryCasesTemp
+     * @param continentCasesTemp
+     * @return
+     */
     private Pair<Map<String, Object>, Map<String, List<Object>>> convertJson(String apiResponse, String classType,
             Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) {
         log.info("ApiResponseConverter: Started converting the JSON");
@@ -75,6 +84,7 @@ public class ApiResponseConverter {
                 if (jp.nextToken() != JsonToken.END_OBJECT) {
                     jp.nextToken();
 
+                    // We are interested in the "All" object, the other objects inside a country object will be skipped
                     if (jp.getCurrentName().equals("All")) {
                         jp.nextToken();
                         if (classType.equals(CountryCases.class.getName())) {

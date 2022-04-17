@@ -24,12 +24,23 @@ public class CovidDataService {
     @Autowired
     private CovidDataRepository covidCasesRepository;
 
+    /**
+     * This method takes as optional parameters the countries and continents provided by the user.
+     *
+     * @param countries
+     * @param continents
+     * @return
+     */
     public ResponseEntity<Object> calculateCorrelationCoefficient(Optional<String[]> countries, Optional<String[]> continents) {
         log.info("CovidDataService: calculateCorrelationCoefficient()");
 
         try {
             Triple<List<String>, List<CountryCases> , List<CountryVaccines>> countryData;
 
+            /*
+             * In the external API the continents had precedence over the countries so if a user provides continents and
+             * countries, the countries would be ignored. I have applied the same practice here.
+             */
             if (continents.isPresent()) {
                 countryData = this.covidCasesRepository.filterCasesByContinents(continents.get());
             } else if (countries.isPresent()) {
@@ -38,6 +49,13 @@ public class CovidDataService {
                 countryData = this.covidCasesRepository.getAllCases();
             }
 
+            /*
+             * Here I retrieve the percentages of the percentage of the deaths and the vaccinations of each country.
+             * The percentages are calculated by dividing the deaths in the first case and the amount of people
+             * vaccinated in the second one with the number of population and multiplying the result with 100.
+             * We get two list of percentages, named x and y and I use these values to calculate the correlation
+             * coefficient.
+             */
             List<Double> xPercentages = new ArrayList<>();
             List<Double> yPercentages = new ArrayList<>();
 
@@ -64,6 +82,15 @@ public class CovidDataService {
         }
     }
 
+    /**
+     * The actual method that calculates the correlation coefficient. The data is dependent on the number of elements
+     * taken into consideration and the values of the elements themselves. The result should always be a value between
+     * -1 and 1, limits included.
+     *
+     * @param x
+     * @param y
+     * @return
+     */
     private Double correlationCoefficient(List<Double> x, List<Double> y) {
         log.info("CovidDataService: calculating correlation coefficient");
 

@@ -80,7 +80,7 @@ public class ExternalCommunicationServiceTest {
     }
 
     @Test(expected = ResourceAccessException.class)
-    public void loadDataFailed() throws IOException {
+    public void loadDataFailed() {
         this.initCommunicationFailureTest();
         this.communicationService.loadData();
     }

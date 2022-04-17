@@ -17,6 +17,10 @@ public class Covid19AssessmentApplication {
         SpringApplication.run(Covid19AssessmentApplication.class, args);
     }
 
+    /**
+     * Creating a bean for the RestTemplate object. Done it to easily configure the connection and read timeout times,
+     * as well as to facilitate the unit testing of the classes.
+     */
     @Bean
     public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate();
