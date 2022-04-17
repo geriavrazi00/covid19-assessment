@@ -27,7 +27,6 @@ public class Covid19AssessmentApplication {
         final int connectTimeout = 15000;
         final int readTimeout = 10000;
 
-        // This code can be used to change the read timeout for testing
         SimpleClientHttpRequestFactory simpleClientHttpRequestFactory = (SimpleClientHttpRequestFactory) restTemplate.getRequestFactory();
         simpleClientHttpRequestFactory.setConnectTimeout(connectTimeout); // millis
         simpleClientHttpRequestFactory.setReadTimeout(readTimeout);  // millis

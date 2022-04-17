@@ -105,16 +105,16 @@ public class CovidDataService {
             Double elementX = x.get(i);
             Double elementY = y.get(i);
 
-            xSum += elementX; // sum of elements of list x
-            ySum += elementY; // sum of elements of list y
-            xySum += elementX * elementY; // sum of x[i] * y[i]
+            xSum += elementX; // Sum of elements of list x
+            ySum += elementY; // Sum of elements of list y
+            xySum += elementX * elementY; // Sum of x[i] * y[i]
 
-            // sum of square of array elements
+            // Sum of square of array elements
             xSquaredSum += elementX * elementX;
             ySquaredSum += elementY * elementY;
         }
 
-        // use formula for calculating correlation coefficient
+        // Using the formula for calculating correlation coefficient
         Double numerator = n * xySum - xSum * ySum;
         Double denominator = (n * xSquaredSum - xSum * xSum) * (n * ySquaredSum - ySum * ySum);
 

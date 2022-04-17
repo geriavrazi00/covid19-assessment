@@ -45,15 +45,15 @@ public class ExternalCommunicationService {
     private boolean communicationFailed = false;
 
     /**
-     * The method that starts it all. It is executed asynchronously at a fixed schedule of 70 mins, so it reads the data
-     * from the external service every 70 mins. The interval amount was chosen since the documentation of the external
-     * API stated that the data there itself were updated approximately every hours. I added 10 mins to it to be almost
-     * certain that the next call will be getting new data.
+     * The method that starts it all. It is executed asynchronously at a fixed schedule of 20 mins, so it reads the data
+     * from the external service every 20 mins. The documentation for the API said that the data there itself is updated
+     * approximately every hour, so at first I wanted to keep the schedule trigger every 60-70 mins. After implementing the
+     * retry strategy though, if all retry attempts fail than 1 hour would pass until the trigger would launch the process
+     * again. 
      *
      */
     @Async
     @Scheduled(fixedRateString = "${schedule.interval.in.millis}")
-//    @Scheduled(fixedRate = 500)
     public void loadData() {
         log.info("ExternalServiceCommunication: Loading data from the external source");
 
