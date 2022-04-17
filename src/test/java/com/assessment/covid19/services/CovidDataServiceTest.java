@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.junit.Assert;
+import org.springframework.http.ResponseEntity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,10 +34,11 @@ public class CovidDataServiceTest {
     public void calculateWithoutInput() {
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> mockedMap = MockGenerator.buildTriple(Optional.empty(), Optional.empty());
         Mockito.when(this.covidCasesRepository.getAllCases()).thenReturn(mockedMap);
-        DataResponse response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.empty());
-        Double correlation = response.getCorrelationCoefficient();
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.empty());
+        DataResponse dataResponse = (DataResponse) response.getBody();
+        Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(response.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1 && correlation <= 1);
+        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1 && correlation <= 1);
     }
 
     @Test
@@ -45,11 +47,12 @@ public class CovidDataServiceTest {
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> mockedMap = MockGenerator.buildTriple(Optional.of(country), Optional.empty());
 
         Mockito.when(this.covidCasesRepository.filterCasesByCountries(Mockito.any())).thenReturn(mockedMap);
-        DataResponse response = this.dataService.calculateCorrelationCoefficient(Optional.of(country), Optional.empty());
-        Double correlation = response.getCorrelationCoefficient();
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.of(country), Optional.empty());
+        DataResponse dataResponse = (DataResponse) response.getBody();
+        Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(response.getSelectedCountries().equals(mockedMap.getLeft()) && correlation == null
-                && response.getSelectedCountries().contains(country[0]));
+        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation == null
+                && dataResponse.getSelectedCountries().contains(country[0]));
     }
 
     @Test
@@ -58,11 +61,12 @@ public class CovidDataServiceTest {
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> mockedMap = MockGenerator.buildTriple(Optional.of(country), Optional.empty());
 
         Mockito.when(this.covidCasesRepository.filterCasesByCountries(Mockito.any())).thenReturn(mockedMap);
-        DataResponse response = this.dataService.calculateCorrelationCoefficient(Optional.of(country), Optional.empty());
-        Double correlation = response.getCorrelationCoefficient();
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.of(country), Optional.empty());
+        DataResponse dataResponse = (DataResponse) response.getBody();
+        Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(response.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
-                && correlation <= 1 && response.getSelectedCountries().contains(country[0]));
+        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
+                && correlation <= 1 && dataResponse.getSelectedCountries().contains(country[0]));
     }
 
     @Test
@@ -71,10 +75,11 @@ public class CovidDataServiceTest {
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> mockedMap = MockGenerator.buildTriple(Optional.empty(), Optional.of(continent));
 
         Mockito.when(this.covidCasesRepository.filterCasesByContinents(Mockito.any())).thenReturn(mockedMap);
-        DataResponse response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.of(new String[] {continent}));
-        Double correlation = response.getCorrelationCoefficient();
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.of(new String[] {continent}));
+        DataResponse dataResponse = (DataResponse) response.getBody();
+        Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(response.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
+        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
                 && correlation <= 1);
     }
 
@@ -85,20 +90,22 @@ public class CovidDataServiceTest {
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> mockedMap = MockGenerator.buildTriple(Optional.of(country), Optional.of(continent));
 
         Mockito.when(this.covidCasesRepository.filterCasesByContinents(Mockito.any())).thenReturn(mockedMap);
-        DataResponse response = this.dataService.calculateCorrelationCoefficient(Optional.of(country), Optional.of(new String[] {continent}));
-        Double correlation = response.getCorrelationCoefficient();
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.of(country), Optional.of(new String[] {continent}));
+        DataResponse dataResponse = (DataResponse) response.getBody();
+        Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(response.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
-                && correlation <= 1 && Arrays.stream(country).allMatch(s -> response.getSelectedCountries().contains(s)));
+        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
+                && correlation <= 1 && Arrays.stream(country).allMatch(s -> dataResponse.getSelectedCountries().contains(s)));
     }
 
     @Test
     public void calculateWithoutInputAndEmptyData() {
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> mockedMap = Triple.of(new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
         Mockito.when(this.covidCasesRepository.getAllCases()).thenReturn(mockedMap);
-        DataResponse response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.empty());
-        Double correlation = response.getCorrelationCoefficient();
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.empty());
+        DataResponse dataResponse = (DataResponse) response.getBody();
+        Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(response.getSelectedCountries().isEmpty() && correlation == null);
+        Assert.assertTrue(dataResponse.getSelectedCountries().isEmpty() && correlation == null);
     }
 }

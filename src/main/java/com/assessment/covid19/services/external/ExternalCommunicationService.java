@@ -4,7 +4,6 @@ import com.assessment.covid19.converters.ApiResponseConverter;
 import com.assessment.covid19.models.CountryCases;
 import com.assessment.covid19.models.CountryVaccines;
 import com.assessment.covid19.models.enums.ExternalUrlPathsEnum;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +11,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
 import java.util.*;
 
 @Component
-@Getter
 @Slf4j
 public class ExternalCommunicationService {
     @Value("${external.api.base}")
@@ -35,12 +34,19 @@ public class ExternalCommunicationService {
     private Map<String, CountryVaccines> countryVaccinesMap = new HashMap<>();
     private Map<String, List<CountryVaccines>> continentVaccinesMap = new HashMap<>();
 
+    private static final int MAX_RETRIES = 3;
+    private int retryCounter = 0;
+    private boolean communicationFailed = false;
+
     // Call the method every 70 min since the api itself loads the data approximately every 60 min
     @Async
     @Scheduled(fixedRateString = "${schedule.interval.in.millis}")
 //    @Scheduled(fixedRate = 500)
     public void loadData() throws IOException {
         log.info("ExternalServiceCommunication: Loading data from the external source");
+
+        retryCounter = 0;
+        communicationFailed = false;
 
         this.loadCases();
         this.loadVaccinations();
@@ -73,12 +79,40 @@ public class ExternalCommunicationService {
     }
 
     private String sendRequest(String url) {
-//        RestTemplate restTemplate = new RestTemplate();
-        return restTemplate.getForObject(this.apiBase + url, String.class);
-//        if (url.equals("/cases")) {
-//            return "src\\main\\resources\\static\\cases";
-//        } else {
-//            return "src\\main\\resources\\static\\vaccines";
-//        }
+        do {
+            try {
+                return restTemplate.getForObject(this.apiBase + url, String.class);
+            } catch (ResourceAccessException exception) {
+                communicationFailed = true;
+                retryCounter++;
+                log.error("Failed sending request to {}. Retry number {}", this.apiBase + url, retryCounter);
+            }
+        } while (communicationFailed && retryCounter <= MAX_RETRIES);
+
+        throw new ResourceAccessException("Communication with the external service failed!");
+    }
+
+    public Map<String, CountryCases> getCountryCasesMap() {
+        this.checkCommunicationStatus();
+        return this.countryCasesMap;
+    }
+
+    public Map<String, List<CountryCases>> getContinentCasesMap() {
+        this.checkCommunicationStatus();
+        return continentCasesMap;
+    }
+
+    public Map<String, CountryVaccines> getCountryVaccinesMap() {
+        this.checkCommunicationStatus();
+        return countryVaccinesMap;
+    }
+
+    public Map<String, List<CountryVaccines>> getContinentVaccinesMap() {
+        this.checkCommunicationStatus();
+        return continentVaccinesMap;
+    }
+
+    private void checkCommunicationStatus() {
+        if (communicationFailed) throw new ResourceAccessException("Communication with the external service failed!");
     }
 }

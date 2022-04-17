@@ -15,6 +15,7 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.IOException;
@@ -38,21 +39,30 @@ public class ExternalCommunicationServiceTest {
     private Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> casesResponse;
     private Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>> vaccinesResponse;
 
-    @Before
-    public void init() throws IOException {
+    public void initSuccessfulCase() throws IOException {
         casesResponse = MockGenerator.buildPairOfCountryCases();
         vaccinesResponse = MockGenerator.buildPairOfCountryVaccines();
         String baseUrl = "test";
 
         ReflectionTestUtils.setField(communicationService, "apiBase", baseUrl);
-        Mockito.when(restTemplate.getForObject(baseUrl + ExternalUrlPathsEnum.CASES_URL.getPath(), String.class)).thenReturn("Response from server");
-        Mockito.when(restTemplate.getForObject(baseUrl + ExternalUrlPathsEnum.VACCINES_URL.getPath(), String.class)).thenReturn("Response from server");
+        Mockito.when(restTemplate.getForObject(baseUrl + ExternalUrlPathsEnum.CASES_URL.getPath(), String.class))
+            .thenReturn("Response from server");
+        Mockito.when(restTemplate.getForObject(baseUrl + ExternalUrlPathsEnum.VACCINES_URL.getPath(), String.class))
+            .thenReturn("Response from server");
         Mockito.when(apiResponseConverter.convertForCountryCases(Mockito.any())).thenReturn(casesResponse);
         Mockito.when(apiResponseConverter.convertForCountryVaccines(Mockito.any())).thenReturn(vaccinesResponse);
     }
 
+    public void initCommunicationFailureTest() {
+        String baseUrl = "test";
+        ReflectionTestUtils.setField(communicationService, "apiBase", baseUrl);
+        Mockito.when(restTemplate.getForObject(baseUrl + ExternalUrlPathsEnum.CASES_URL.getPath(), String.class))
+            .thenThrow(ResourceAccessException.class);
+    }
+
     @Test
-    public void loadData() throws IOException {
+    public void loadDataSuccessfully() throws IOException {
+        this.initSuccessfulCase();
         this.communicationService.loadData();
         assertTrue(this.communicationService.getContinentCasesMap() != null
             && this.communicationService.getContinentCasesMap().size() == 1
@@ -67,5 +77,11 @@ public class ExternalCommunicationServiceTest {
             && this.communicationService.getCountryVaccinesMap().size() == MockGenerator.EUROPEAN_COUNTRIES.length
             && this.communicationService.getCountryVaccinesMap().equals(vaccinesResponse.getLeft())
         );
+    }
+
+    @Test(expected = ResourceAccessException.class)
+    public void loadDataFailed() throws IOException {
+        this.initCommunicationFailureTest();
+        this.communicationService.loadData();
     }
 }

@@ -8,7 +8,10 @@ import com.assessment.covid19.utils.Utils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Triple;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.ResourceAccessException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,34 +24,44 @@ public class CovidDataService {
     @Autowired
     private CovidDataRepository covidCasesRepository;
 
-    public DataResponse calculateCorrelationCoefficient(Optional<String[]> countries, Optional<String[]> continents) {
+    public ResponseEntity<Object> calculateCorrelationCoefficient(Optional<String[]> countries, Optional<String[]> continents) {
         log.info("CovidDataService: calculateCorrelationCoefficient()");
 
-        Triple<List<String>, List<CountryCases> , List<CountryVaccines>> countryData;
+        try {
+            Triple<List<String>, List<CountryCases> , List<CountryVaccines>> countryData;
 
-        if (continents.isPresent()) {
-            countryData = this.covidCasesRepository.filterCasesByContinents(continents.get());
-        } else if (countries.isPresent()) {
-            countryData = this.covidCasesRepository.filterCasesByCountries(countries.get());
-        } else {
-            countryData = this.covidCasesRepository.getAllCases();
+            if (continents.isPresent()) {
+                countryData = this.covidCasesRepository.filterCasesByContinents(continents.get());
+            } else if (countries.isPresent()) {
+                countryData = this.covidCasesRepository.filterCasesByCountries(countries.get());
+            } else {
+                countryData = this.covidCasesRepository.getAllCases();
+            }
+
+            List<Double> xPercentages = new ArrayList<>();
+            List<Double> yPercentages = new ArrayList<>();
+
+            countryData.getMiddle().forEach(countryCase -> xPercentages.add(countryCase.calculateDeathsToPopPercentage()));
+            countryData.getRight().forEach(countryVaccination -> yPercentages.add(countryVaccination.calculateVaxToPopPercentage()));
+
+            Double correlationCoefficient = this.correlationCoefficient(xPercentages, yPercentages);
+            DataResponse response = DataResponse.builder()
+                    .correlationCoefficient(Utils.decimalPointConverter(correlationCoefficient, 4))
+                    .selectedCountries(countryData.getLeft())
+                    .build();
+
+            log.info("CovidDataService: calculateCorrelationCoefficient() finished");
+
+            return ResponseEntity.ok(response);
+        } catch (ResourceAccessException exception) {
+            log.error("Communication with the external service failed!");
+            return new ResponseEntity<>("Communication with the external service failed! Please try again later."
+                    , HttpStatus.GATEWAY_TIMEOUT);
+        } catch (Exception exception) {
+            log.error("Internal server error! Exception: {}", exception.getMessage());
+            return new ResponseEntity<>("Internal server error! Please try again later."
+                    , HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
-        List<Double> xPercentages = new ArrayList<>();
-        List<Double> yPercentages = new ArrayList<>();
-
-        countryData.getMiddle().forEach(countryCase -> xPercentages.add(countryCase.calculateDeathsToPopPercentage()));
-        countryData.getRight().forEach(countryVaccination -> yPercentages.add(countryVaccination.calculateVaxToPopPercentage()));
-
-        Double correlationCoefficient = this.correlationCoefficient(xPercentages, yPercentages);
-        DataResponse response = DataResponse.builder()
-                .correlationCoefficient(Utils.decimalPointConverter(correlationCoefficient, 4))
-                .selectedCountries(countryData.getLeft())
-                .build();
-
-        log.info("CovidDataService: calculateCorrelationCoefficient() finished");
-
-        return response;
     }
 
     private Double correlationCoefficient(List<Double> x, List<Double> y) {
