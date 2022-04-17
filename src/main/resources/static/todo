@@ -3,7 +3,7 @@
 11. retry case of calling the api when the connection is down
 3. see if I can rewrite the ApiResponseConverter class
 4. adding comments
-5. adding some more logs
+5. adding some more logs - DONE
 6. properly testing, especially the threads when we are reading data and the maps are being updated
 7. adding unit tests
 2. deploying in heroku

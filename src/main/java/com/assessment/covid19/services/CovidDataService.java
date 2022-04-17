@@ -52,6 +52,8 @@ public class CovidDataService {
     }
 
     private Double correlationCoefficient(List<Double> x, List<Double> y) {
+        log.info("CovidDataService: calculating correlation coefficient");
+
         int n = x.size();
         Double xSum = 0.0;
         Double ySum = 0.0;
@@ -75,6 +77,9 @@ public class CovidDataService {
         // use formula for calculating correlation coefficient
         Double numerator = n * xySum - xSum * ySum;
         Double denominator = (n * xSquaredSum - xSum * xSum) * (n * ySquaredSum - ySum * ySum);
+
+        log.info("CovidDataService: successfully calculated the correlation coefficient");
+
         return denominator != 0 ? numerator / (Math.sqrt(denominator)) : null;
     }
 }
