@@ -1,6 +1,5 @@
 package com.assessment.covid19.controllers;
 
-import com.assessment.covid19.models.DataResponse;
 import com.assessment.covid19.services.CovidDataService;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.info.Info;

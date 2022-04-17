@@ -6,7 +6,6 @@ import com.assessment.covid19.models.CountryVaccines;
 import com.assessment.covid19.services.external.ExternalCommunicationService;
 import com.assessment.covid19.utils.Utils;
 import org.apache.commons.lang3.tuple.Triple;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -16,6 +15,8 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.*;
+
+import static org.junit.Assert.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CovidDataRepositoryTest {
@@ -49,7 +50,7 @@ public class CovidDataRepositoryTest {
         };
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByCountries(countriesToFilter);
 
-        Assert.assertTrue(result.getLeft().size() == countriesToFilter.length
+        assertTrue(result.getLeft().size() == countriesToFilter.length
             && Arrays.stream(countriesToFilter).allMatch(s -> result.getLeft().contains(s))
             && result.getMiddle().size() == countriesToFilter.length && result.getRight().size() == countriesToFilter.length
         );
@@ -59,7 +60,7 @@ public class CovidDataRepositoryTest {
     public void filterByCountriesWithoutCountries() {
         initMocks(Optional.empty(), true);
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByCountries(new String[]{});
-        Assert.assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
+        assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
     }
 
     @Test
@@ -67,7 +68,7 @@ public class CovidDataRepositoryTest {
         String[] countries = MockGenerator.NORTH_AMERICAN_COUNTRIES;
         initCountryCases(Optional.of(countries), false);
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByCountries(countries);
-        Assert.assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
+        assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
     }
 
     @Test
@@ -75,7 +76,7 @@ public class CovidDataRepositoryTest {
         String[] countries = MockGenerator.NORTH_AMERICAN_COUNTRIES;
         initCountryVaccines(Optional.of(countries), false);
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByCountries(countries);
-        Assert.assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
+        assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
     }
 
     @Test
@@ -95,7 +96,7 @@ public class CovidDataRepositoryTest {
         };
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByCountries(countriesToFilter);
 
-        Assert.assertTrue(result.getLeft().size() == 1
+        assertTrue(result.getLeft().size() == 1
                 && result.getLeft().contains(Utils.formatName(MockGenerator.NORTH_AMERICAN_COUNTRIES[0]))
                 && result.getMiddle().size() == 1 && result.getRight().size() == 1
         );
@@ -107,7 +108,7 @@ public class CovidDataRepositoryTest {
         initMocks(Optional.of(countries), false);
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.getAllCases();
 
-        Assert.assertTrue(result.getLeft().size() == countries.length
+        assertTrue(result.getLeft().size() == countries.length
                 && Arrays.stream(countries).allMatch(s -> result.getLeft().contains(s))
                 && result.getMiddle().size() == countries.length && result.getRight().size() == countries.length
         );
@@ -121,7 +122,7 @@ public class CovidDataRepositoryTest {
 
         String[] continents = new String[] { MockGenerator.CONTINENTS[0] };
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByContinents(continents);
-        Assert.assertTrue(result.getLeft().size() == MockGenerator.EUROPEAN_COUNTRIES.length
+        assertTrue(result.getLeft().size() == MockGenerator.EUROPEAN_COUNTRIES.length
                 && result.getMiddle().size() == MockGenerator.EUROPEAN_COUNTRIES.length
                 && result.getRight().size() == MockGenerator.EUROPEAN_COUNTRIES.length);
     }
@@ -133,7 +134,7 @@ public class CovidDataRepositoryTest {
 
         String[] continents = MockGenerator.CONTINENTS;
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByContinents(continents);
-        Assert.assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
+        assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
     }
 
     @Test
@@ -145,6 +146,6 @@ public class CovidDataRepositoryTest {
         initMocks(Optional.of(MockGenerator.EUROPEAN_COUNTRIES), false);
 
         Triple<List<String>, List<CountryCases>, List<CountryVaccines>> result = this.dataRepository.filterCasesByContinents(continents);
-        Assert.assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
+        assertTrue(result.getLeft().isEmpty() && result.getMiddle().isEmpty() && result.getRight().isEmpty());
     }
 }

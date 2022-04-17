@@ -1,13 +1,13 @@
 1. adding swagger - DONE, maybe recheck
-10. exception handling - DONE
-11. retry case of calling the api when the connection is down - DONE
-3. see if I can rewrite the ApiResponseConverter class
+2. deploying in heroku
+3. see if I can rewrite the ApiResponseConverter class - DONE, didn't change almost anything
 4. adding comments
 5. adding some more logs - DONE
 6. properly testing, especially the threads when we are reading data and the maps are being updated
-7. adding unit tests
-2. deploying in heroku
-8. properly clean the project. delete the static folder in the resources folder
+7. adding unit tests - DONE
+8. properly clean the project.
 9. check all classes with sonar again to see if its all ok
+10. exception handling - DONE
+11. retry case of calling the api when the connection is down - DONE
 12. Maybe remove some fields in the models, not all of them are necessary
 13. Maybe decrease the interval of time the api is called. consider 15 min instead of 70

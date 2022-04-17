@@ -14,12 +14,17 @@ import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.junit.Assert;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.client.ResourceAccessException;
+import org.springframework.web.client.RestClientException;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CovidDataServiceTest {
@@ -38,7 +43,8 @@ public class CovidDataServiceTest {
         DataResponse dataResponse = (DataResponse) response.getBody();
         Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1 && correlation <= 1);
+        assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft())
+            && correlation >= -1 && correlation <= 1 && response.getStatusCode().equals(HttpStatus.OK));
     }
 
     @Test
@@ -51,8 +57,8 @@ public class CovidDataServiceTest {
         DataResponse dataResponse = (DataResponse) response.getBody();
         Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation == null
-                && dataResponse.getSelectedCountries().contains(country[0]));
+        assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation == null
+                && dataResponse.getSelectedCountries().contains(country[0]) && response.getStatusCode().equals(HttpStatus.OK));
     }
 
     @Test
@@ -65,8 +71,8 @@ public class CovidDataServiceTest {
         DataResponse dataResponse = (DataResponse) response.getBody();
         Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
-                && correlation <= 1 && dataResponse.getSelectedCountries().contains(country[0]));
+        assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
+                && correlation <= 1 && dataResponse.getSelectedCountries().contains(country[0]) && response.getStatusCode().equals(HttpStatus.OK));
     }
 
     @Test
@@ -79,8 +85,8 @@ public class CovidDataServiceTest {
         DataResponse dataResponse = (DataResponse) response.getBody();
         Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
-                && correlation <= 1);
+        assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
+                && correlation <= 1 && response.getStatusCode().equals(HttpStatus.OK));
     }
 
     @Test
@@ -94,8 +100,9 @@ public class CovidDataServiceTest {
         DataResponse dataResponse = (DataResponse) response.getBody();
         Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
-                && correlation <= 1 && Arrays.stream(country).allMatch(s -> dataResponse.getSelectedCountries().contains(s)));
+        assertTrue(dataResponse.getSelectedCountries().equals(mockedMap.getLeft()) && correlation >= -1
+                && correlation <= 1 && Arrays.stream(country).allMatch(s -> dataResponse.getSelectedCountries().contains(s))
+                && response.getStatusCode().equals(HttpStatus.OK));
     }
 
     @Test
@@ -106,6 +113,21 @@ public class CovidDataServiceTest {
         DataResponse dataResponse = (DataResponse) response.getBody();
         Double correlation = dataResponse.getCorrelationCoefficient();
 
-        Assert.assertTrue(dataResponse.getSelectedCountries().isEmpty() && correlation == null);
+        assertTrue(dataResponse.getSelectedCountries().isEmpty() && correlation == null
+                && response.getStatusCode().equals(HttpStatus.OK));
+    }
+
+    @Test
+    public void calculateWithGatewayTimeoutException() {
+        Mockito.when(this.covidCasesRepository.getAllCases()).thenThrow(ResourceAccessException.class);
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.empty());
+        Assert.assertEquals(HttpStatus.GATEWAY_TIMEOUT, response.getStatusCode());
+    }
+
+    @Test
+    public void calculateWithGenericException() {
+        Mockito.when(this.covidCasesRepository.getAllCases()).thenThrow(RestClientException.class);
+        ResponseEntity<Object> response = this.dataService.calculateCorrelationCoefficient(Optional.empty(), Optional.empty());
+        Assert.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 }

@@ -11,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,22 +20,20 @@ import java.util.Map;
 @Component
 @Slf4j
 public class ApiResponseConverter {
-
     private final ObjectMapper objectMapper = new ObjectMapper();
     private static final String GLOBAL_COUNTRY_NAME = "Global";
 
-    // TODO - see again the class to write it better
-    public Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertForCountryCases(String apiResponse) throws IOException {
+    public Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>> convertForCountryCases(String apiResponse) {
         return (Pair<Map<String, CountryCases>, Map<String, List<CountryCases>>>)(Object) convertJson(apiResponse, CountryCases.class.getName(), new HashMap<>(), new HashMap<>());
     }
 
-    public Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>> convertForCountryVaccines(String apiResponse) throws IOException {
+    public Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>> convertForCountryVaccines(String apiResponse) {
         return (Pair<Map<String, CountryVaccines>, Map<String, List<CountryVaccines>>>)(Object) convertJson(apiResponse, CountryVaccines.class.getName(), new HashMap<>(), new HashMap<>());
     }
 
     private void convertForCountryCases(JsonParser jp, String countryName, Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) throws IOException {
         CountryCases countryCases = objectMapper.readValue(jp.readValueAsTree().toString(), CountryCases.class);
-        if (!countryName.equals(GLOBAL_COUNTRY_NAME)) {
+        if (!countryName.equals(GLOBAL_COUNTRY_NAME.toLowerCase())) {
             if (countryCases.getCountry() == null) countryCases.setCountry(countryName);
             countryCasesTemp.put(countryName.toLowerCase(), countryCases);
 
@@ -48,7 +45,7 @@ public class ApiResponseConverter {
 
     private void convertForCountryVaccines(JsonParser jp, String countryName, Map<String, Object> countryVaccinesTemp, Map<String, List<Object>> continentVaccinesTemp) throws IOException {
         CountryVaccines countryVaccines = objectMapper.readValue(jp.readValueAsTree().toString(), CountryVaccines.class);
-        if (!countryName.equals(GLOBAL_COUNTRY_NAME)) {
+        if (!countryName.equals(GLOBAL_COUNTRY_NAME.toLowerCase())) {
             if (countryVaccines.getCountry() == null) countryVaccines.setCountry(countryName);
 
             countryVaccinesTemp.put(countryName.toLowerCase(), countryVaccines);
@@ -60,12 +57,13 @@ public class ApiResponseConverter {
     }
 
     private Pair<Map<String, Object>, Map<String, List<Object>>> convertJson(String apiResponse, String classType,
-            Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) throws IOException {
+            Map<String, Object> countryCasesTemp, Map<String, List<Object>> continentCasesTemp) {
+        log.info("ApiResponseConverter: Started converting the JSON");
         JsonFactory f = new MappingJsonFactory();
 
         try (JsonParser jp = f.createParser(apiResponse)) {
             if (jp.nextToken() != JsonToken.START_OBJECT) {
-                log.error("Error in convertJson(): The JSON format is wrongly formatted.");
+                log.error("Error in convertJson(): The JSON provided does does not start with an object");
                 return Pair.of(countryCasesTemp, continentCasesTemp);
             }
 
@@ -92,8 +90,12 @@ public class ApiResponseConverter {
                     current = jp.nextToken();
                 }
             }
+        } catch (Exception exception) {
+            log.error("Error in convertJson(): The JSON is wrongly formatted!");
+            return Pair.of(new HashMap<>(), new HashMap<>());
         }
 
+        log.info("ApiResponseConverter: Finished converting the JSON");
         return Pair.of(countryCasesTemp, continentCasesTemp);
     }
 }
